@@ -7,9 +7,39 @@ require('dotenv').config();
 const app = require('./app');
 const http = require('http');
 
-/**
- * Get port from environment and store in Express.
- */
+app.use(cors());
+app.use(express.json());
+app.use(express.static("public"));
+
+const server = http.createServer(app);
+
+const io = new SocketServer(server, {
+  cors: {
+    origin: ["http://localhost:3000", "http://localhost:3001"],
+    methods: ["GET", "POST"],
+  },
+});
+
+dbConnection();
+
+module.exports = { io };
+
+require("./sockets");
+
+app.get("/", (req, res) => {
+  res.send(`App is running on ${port}`);
+});
+
+app.use((req, res) => {
+  res
+    .status(404)
+    .json({ status: 404, success: false, message: "Route not found" });
+});
+
+app.use((err, res) => {
+  console.error("error stack", err.stack);
+  res.status(500).json({ error: err.stack });
+});
 
 const port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
@@ -17,8 +47,6 @@ app.set('port', port);
 /**
  * Create HTTP server.
  */
-
-const server = http.createServer(app);
 
 /**
  * Listen on provided port, on all network interfaces.
