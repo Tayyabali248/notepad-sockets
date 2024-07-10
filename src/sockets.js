@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const { io } = require("../server");
+const { io } = require("./index");
 
 let users = [];
 
